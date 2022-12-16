@@ -6,7 +6,17 @@ const app = express();
 const dataFile = path.join(__dirname, "data.json");
 
 // Support POSTing form data with URL encoded
+//
+// See these links about using "application/x-www-form-urlencoded" versus "multipart/form-data"
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
+// https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
 app.use(express.urlencoded({ extended: true }));
+
+// Enable CORS
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
+});
 
 // Response to GET request at the ./poll endpoint
 app.get("/poll", async (req, res) => {
@@ -32,13 +42,13 @@ app.get("/poll", async (req, res) => {
   //console.log(totalVotes);
 });
 
-//
+// Response to POST request at the ./poll endpoint
 app.post("/poll", async (req, res) => {
   const data = JSON.parse(await fs.readFile(dataFile, "utf-8"));
 
-  data[req.body.add]++; // req.body represents the user's input
+  data[req.body.add]++; // req.body represents the user's input (POST method passes a form object within the request body)
 
-  console.log(req.body);
+  //console.log(req.body);
 
   await fs.writeFile(dataFile, JSON.stringify(data));
 
